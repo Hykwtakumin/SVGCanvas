@@ -1,0 +1,34 @@
+{
+  "name": "SVGCanvas",
+  "version": "1.0.0",
+  "description": "browser extension that improves SVG usage",
+  "scripts": {
+    "postinstall": "mkdir ./dist/pages ./dist/icons ./dist/styles",
+    "clean": "rm -rf dist/*",
+    "tsc": "./node_modules/.bin/tsc",
+    "copy": "cp ./manifest.json ./dist && cp -r ./src/pages ./dist/pages && cp -r ./src/icons ./dist/icons && cp -r ./src/styles ./dist/styles",
+    "build": "npm run clean && npm run copy && npm run tsc && npm run browserify",
+    "browserify-bg": "browserify ./dist/scripts/background.js -o ./dist/scripts/background.js",
+    "browserify-cs": "browserify ./dist/scripts/content.js -o ./dist/scripts/content.js",
+    "browserify-op": "browserify ./dist/scripts/option.js -o ./dist/scripts/option.js",
+    "browserify": "npm run browserify-bg && npm run browserify-cs && npm run browserify-op",
+    "android": "web-ext run --source-dir ./dist --target=firefox-android --android-device=******** --firefox-apk=org.mozilla.fennec_aurora",
+    "test": "tslint '/src/scripts/*.ts'"
+  },
+  "main": "index.js",
+  "author": "hykwtakumin",
+  "license": "MIT",
+  "dependencies": {
+    "@types/chrome": "^0.0.81",
+    "aws-sdk": "^2.456.0",
+    "browserify": "^16.2.3",
+    "chrome-promise": "^3.0.4",
+    "debug": "^4.1.1",
+    "moment": "^2.24.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "typescript": "^3.4.2",
+    "web-ext": "^3.0.0",
+    "web-ext-types": "^3.1.0"
+  }
+}
