@@ -30,59 +30,49 @@ const stopDrawing = async () => {
   chrome.browserAction.setBadgeText({ text: "" });
 };
 
-// const upLoad2s3 = (data: any, fileName: string): Promise<boolean> => {
-//   const albumBucketName = "";
-//   const bucketRegion = "";
-//   const IdentityPoolId = "";
-
-//   AWS.config.update({
-//     region: bucketRegion,
-//     credentials: new AWS.CognitoIdentityCredentials({
-//       IdentityPoolId: IdentityPoolId
-//     })
-//   });
-
-//   const s3 = new AWS.S3({
-//     apiVersion: "2006-03-01",
-//     params: { Bucket: albumBucketName }
-//   });
-
-//   const fileKey: ObjectKey = `${encodeURIComponent(
-//     "HyperIllustCreator"
-//   )}/${fileName}`;
-
-//   const dataBody: Body = data;
-
-//   const opiton: ObjectCannedACL = "public-read";
-
-//   const reqObject = {
-//     Key: fileKey,
-//     Body: dataBody,
-//     ContentType: "image/svg+xml",
-//     ACL: opiton
-//   } as PutObjectRequest;
-
-//   return new Promise<boolean>((resolve, reject) => {
-//     s3.upload(reqObject, (err, data) => {
-//       if (err) {
-//         console.dir(err);
-//         resolve(false);
-//       }
-//       if (data) {
-//         resolve(true);
-//         console.dir(data);
-//       }
-//     });
-//   });
-// };
+const pasteToClipBoard = (text: string) => {
+  const textArea = document.createElement("textarea");
+  document.body.appendChild(textArea);
+  textArea.value = text;
+  textArea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textArea);
+};
 
 const upload = async (data: any, fileName: string) => {
+  const revivedBlob = new Blob([data], { type: "image/svg+xml;charset=utf-8" });
+  console.dir(revivedBlob);
+  const formData = new FormData();
+  formData.append(`file`, revivedBlob);
   const request = await fetch(
-    `https://hyper-illust-creator.herokuapp.com/upload/${fileName}`,
-    { method: "POST", body: data, mode: "cors" }
+    `https://hyper-illust-creator.herokuapp.com/api/upload`,
+    {
+      method: "POST",
+      body: formData,
+      mode: "cors"
+    }
   );
+  // const request = await fetch(`http://127.0.0.1:3000/api/upload`, {
+  //   method: "POST",
+  //   body: formData,
+  //   mode: "cors"
+  // });
   const response = await request.json();
   console.dir(response);
+  const activeTab = (await chromep.tabs.query({ active: true })) as Tab[];
+  const targetId = activeTab[0].id;
+  if (response && response.ok) {
+    pasteToClipBoard(response.url);
+    chrome.tabs.sendMessage(targetId, {
+      tag: "uploaded",
+      body: response.url
+    });
+  } else {
+    chrome.tabs.sendMessage(targetId, {
+      tag: "uploadFailed",
+      body: "upload is failed!"
+    });
+  }
 };
 
 //拡張機能のボタンを押すとお絵かきモードが起動
@@ -157,7 +147,20 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     //const result = await upLoad2s3(msg.body, msg.name);
     //console.dir(result);
   } else if (msg.tag === "upload") {
-    const result = await upload(msg.body, msg.name);
-    console.dir(result);
+    const blobUrl = msg.body;
+    const xhr = new XMLHttpRequest();
+
+    xhr.addEventListener("load", async () => {
+      const blobBuffer = xhr.response;
+      await upload(blobBuffer, msg.name);
+      sendResponse();
+    });
+
+    xhr.open("GET", blobUrl);
+    xhr.responseType = "arraybuffer";
+    xhr.send();
+
+    // const result = await upload(msg.body, msg.name);
+    // console.dir(result);
   }
 });
