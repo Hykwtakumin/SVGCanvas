@@ -150,17 +150,21 @@ export const MainCanvas = (
       [new XMLSerializer().serializeToString(svgCanvas.current)],
       { type: "image/svg+xml;charset=utf-8" }
     );
-    console.dir(blobObject);
-    const request = {
-      tag: "upload",
-      body: blobObject,
-      name: fileName
-    };
-    chrome.runtime.sendMessage(request);
+
+    const blobUrl = URL.createObjectURL(blobObject);
+
+    chrome.runtime.sendMessage({ tag: "upload", body: blobUrl }, () => {
+      URL.revokeObjectURL(blobUrl);
+    });
+
     chrome.runtime.onMessage.addListener(
       async (message, sender, sendResponse) => {
         if (message.tag === "uploaded") {
-          alert("アップロードに成功しました!");
+          alert(`アップロードに成功しました!
+                URLをクリップボードにコピーしました!
+          `);
+        } else if (message.tag === "uploadFailed") {
+          alert("アップロードに失敗しました!");
         }
       }
     );
