@@ -6,7 +6,7 @@ export const addPath = (canvas: SVGElement, point: Points): SVGPathElement => {
     "http://www.w3.org/2000/svg",
     "path"
   );
-  const initialPoint = `M ${point.x} ${point.y} `;
+  const initialPoint = `M ${Math.floor(point.x)} ${Math.floor(point.y)} `;
   pathElm.setAttribute("d", initialPoint);
   pathElm.setAttribute("fill", "none");
   pathElm.setAttribute("pointer-events", "none");
@@ -16,7 +16,7 @@ export const addPath = (canvas: SVGElement, point: Points): SVGPathElement => {
 
 export const updatePath = (path: SVGPathElement, point: Points) => {
   let pointsArray: string = path.getAttribute("d");
-  const movement = ` L ${point.x} ${point.y}`;
+  const movement = ` L ${Math.floor(point.x)} ${Math.floor(point.y)}`;
   pointsArray += movement;
   path.setAttribute("d", pointsArray);
 };
