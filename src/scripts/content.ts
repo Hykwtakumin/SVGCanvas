@@ -1,6 +1,7 @@
 import { openCanvas, closeCanvas } from "./components/openCanvas";
 import { getPagesWithImage } from "./components/UseScrapbox";
 import { TitleImageMap } from "./components/utils";
+import { loadLayerdSVG, layerdSVGProps } from "./components/layeredSVG";
 
 window.onload = async () => {
   console.log("content script");
@@ -87,15 +88,15 @@ window.onload = async () => {
       if (owner) {
         console.log(`Owner is ${owner.innerText}`);
       }
-      //複数のコードブロックをうまいこと監視する方法はまた考える
       blocks.forEach(async block => {
         const source = block.lastChild as HTMLAnchorElement;
         svgSources.push(source.href);
         console.dir(svgSources);
-        const request = await fetch(source.href);
-        const body = await request.text();
-        editor.insertAdjacentHTML("afterend", body);
+        // const request = await fetch(source.href);
+        // const body = await request.text();
+        // editor.insertAdjacentHTML("afterend", body);
       });
+      loadLayerdSVG({ SVGSoruces: svgSources, owner: "", parent: editor });
     } else {
       console.log("code block is not found now");
     }

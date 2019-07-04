@@ -105,3 +105,14 @@
   width: 100px;
   height: 100px;
 }
+
+.svgContainer {
+  border: medium solid #2ed4cc;
+  position: relative;
+}
+
+.layerDOM {
+  position: absolute;
+  left: 0%;
+  top: 0%;
+}
