@@ -109,6 +109,7 @@
 .svgContainer {
   border: medium solid #2ed4cc;
   position: relative;
+  margin-bottom: 400px;
 }
 
 .layerDOM {

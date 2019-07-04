@@ -19,6 +19,7 @@ window.onload = async () => {
         console.log(target);
         console.log(target.innerText);
         //CodeBlockに変更を加える際はObserverをdissconnectする
+        reRender();
       }
     });
 
@@ -64,11 +65,12 @@ window.onload = async () => {
   //ページ中にあるSVGSource
   //SVGがすでにある場合は新しく作るが良いかもしれない
   const svgSources: string[] = [];
+  let canvasOwner: string;
 
   const findCodeBlock = () => {
     const blocks = document.querySelectorAll(".code-block-start");
 
-    if (blocks && blocks.length > 1) {
+    if (blocks && blocks.length > 0) {
       console.dir(blocks);
       clearInterval(timerID);
       console.log("code block detected! and timer is Cleared");
@@ -86,17 +88,23 @@ window.onload = async () => {
         "dropdown-header list-header"
       )[1] as HTMLUListElement;
       if (owner) {
-        console.log(`Owner is ${owner.innerText}`);
+        canvasOwner = owner.innerText;
+        console.log(`Owner is ${canvasOwner}`);
+
+        blocks.forEach(async block => {
+          const source = block.lastChild as HTMLAnchorElement;
+          svgSources.push(source.href);
+          console.dir(svgSources);
+          // const request = await fetch(source.href);
+          // const body = await request.text();
+          // editor.insertAdjacentHTML("afterend", body);
+        });
+        loadLayerdSVG({
+          SVGSoruces: svgSources,
+          owner: canvasOwner,
+          parent: editor
+        });
       }
-      blocks.forEach(async block => {
-        const source = block.lastChild as HTMLAnchorElement;
-        svgSources.push(source.href);
-        console.dir(svgSources);
-        // const request = await fetch(source.href);
-        // const body = await request.text();
-        // editor.insertAdjacentHTML("afterend", body);
-      });
-      loadLayerdSVG({ SVGSoruces: svgSources, owner: "", parent: editor });
     } else {
       console.log("code block is not found now");
     }
@@ -105,6 +113,16 @@ window.onload = async () => {
   const timerID = setInterval(() => {
     findCodeBlock();
   }, 500);
+
+  const reRender = () => {
+    //再描画する
+    const editor = document.getElementById("editor");
+    loadLayerdSVG({
+      SVGSoruces: svgSources,
+      owner: canvasOwner,
+      parent: editor
+    });
+  };
 
   const pageList = await getPagesWithImage();
   const imageMap: TitleImageMap[] = pageList.map(page => {

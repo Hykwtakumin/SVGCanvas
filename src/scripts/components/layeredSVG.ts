@@ -17,7 +17,8 @@ export const loadLayerdSVG = (props: layerdSVGProps) => {
     SVGContainer = document.createElement("div");
     SVGContainer.id = "svgContainer";
     SVGContainer.classList.add("svgContainer");
-    props.parent.appendChild(SVGContainer);
+    //props.parent.appendChild(SVGContainer);
+    props.parent.insertAdjacentElement("beforeend", SVGContainer);
   }
   //パーサーを生成
   const SVGParser = new DOMParser();
