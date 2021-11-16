@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/chrome": "^0.0.81",
-    "aws-sdk": "^2.456.0",
+    "aws-sdk": "^2.814.0",
     "browserify": "^16.2.3",
     "chrome-promise": "^3.0.4",
     "debug": "^4.1.1",
